@@ -22,7 +22,7 @@
 
 <header class="nav" id="nav">
   <button class="icon-btn menu-btn" id="menuBtn" aria-label="Menu"><span></span><span></span></button>
-  <nav class="nav-links"><a href="#shop" data-filter="all">Shop</a><a href="#shop" data-filter="outerwear">Outerwear</a><a href="#shop" data-filter="accessories">Accessories</a><a href="#lookbook">Lookbook</a></nav>
+  <nav class="nav-links" id="navLinks"></nav>
   <a href="#" class="logo">OBSIDIAN</a>
   <div class="nav-actions">
     <button class="icon-btn" id="searchBtn" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
@@ -33,7 +33,6 @@
 </header>
 
 <div class="mobile-menu" id="mobileMenu">
-  <a href="#shop" data-filter="all">Shop all</a><a href="#shop" data-filter="outerwear">Outerwear</a><a href="#shop" data-filter="knitwear">Knitwear</a><a href="#shop" data-filter="accessories">Accessories</a><a href="#lookbook">Lookbook</a>
 </div>
 
 <main>
@@ -42,9 +41,9 @@
     <div class="hero-bg" id="heroBg"></div>
     <div class="hero-grain"></div>
     <div class="hero-content">
-      <p class="eyebrow reveal">Autumn / Winter 2026</p>
-      <h1 class="hero-title split">Wear the<br><em>quiet</em> hours.</h1>
-      <p class="hero-sub reveal">Considered pieces cut from Italian wool, Japanese denim and vegetable-tanned leather. Made to outlast the season.</p>
+      <p class="eyebrow reveal" data-t="eyebrow"></p>
+      <h1 class="hero-title split" data-t="heroTitle"></h1>
+      <p class="hero-sub reveal" data-t="heroSub"></p>
       <div class="hero-cta reveal">
         <a href="#shop" class="btn btn-primary magnetic"><span>Shop the collection</span></a>
         <a href="#lookbook" class="btn btn-ghost magnetic"><span>View lookbook</span></a>
@@ -54,32 +53,19 @@
   </section>
 
   <!-- Marquee -->
-  <section class="marquee"><div class="marquee-track" id="marquee">
-    <span>Nocturne</span><em>✦</em><span>Ethically made</span><em>✦</em><span>Limited runs</span><em>✦</em><span>Lifetime repairs</span><em>✦</em>
-  </div></section>
+  <section class="marquee"><div class="marquee-track" id="marquee"></div></section>
 
   <!-- Categories -->
   <section class="cats container">
-    <div class="section-head"><h2 class="split">Shop by category</h2><p class="reveal">Four foundations of a modern wardrobe.</p></div>
-    <div class="cat-grid">
-      <a class="cat-card reveal tilt" href="#shop" data-filter="outerwear" style="--img:url('https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=900&q=80')"><span>Outerwear</span><small>12 pieces →</small></a>
-      <a class="cat-card reveal tilt" href="#shop" data-filter="knitwear" style="--img:url('https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=900&q=80')"><span>Knitwear</span><small>9 pieces →</small></a>
-      <a class="cat-card reveal tilt" href="#shop" data-filter="essentials" style="--img:url('https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=900&q=80')"><span>Essentials</span><small>18 pieces →</small></a>
-      <a class="cat-card reveal tilt" href="#shop" data-filter="accessories" style="--img:url('https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=900&q=80')"><span>Accessories</span><small>14 pieces →</small></a>
-    </div>
+    <div class="section-head"><h2 class="split">Shop by category</h2><p class="reveal" data-t="catSub"></p></div>
+    <div class="cat-grid" id="catGrid"></div>
   </section>
 
   <!-- Shop -->
   <section class="shop container" id="shop">
-    <div class="section-head"><h2 class="split">The collection</h2><p class="reveal"><span id="resultCount">0</span> pieces</p></div>
+    <div class="section-head"><h2 class="split">The collection</h2><p class="reveal"><span id="resultCount">0</span> <span data-t="unit"></span></p></div>
     <div class="toolbar reveal">
-      <div class="chips" id="chips">
-        <button class="chip active" data-filter="all">All</button>
-        <button class="chip" data-filter="outerwear">Outerwear</button>
-        <button class="chip" data-filter="knitwear">Knitwear</button>
-        <button class="chip" data-filter="essentials">Essentials</button>
-        <button class="chip" data-filter="accessories">Accessories</button>
-      </div>
+      <div class="chips" id="chips"></div>
       <div class="toolbar-right">
         <label class="price-filter">Max $<output id="priceOut">600</output><input type="range" id="priceRange" min="40" max="600" step="10" value="600" /></label>
         <select id="sortSel">
@@ -94,11 +80,11 @@
 
   <!-- Drop countdown -->
   <section class="drop" id="lookbook">
-    <div class="drop-media parallax" data-speed="0.15" style="background-image:url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1800&q=80')"></div>
+    <div class="drop-media parallax" id="dropMedia" data-speed="0.15"></div>
     <div class="drop-inner container">
       <p class="eyebrow reveal">Next drop</p>
-      <h2 class="split">Nocturne II</h2>
-      <p class="reveal">Twelve pieces. Numbered. Never restocked.</p>
+      <h2 class="split" data-t="dropName"></h2>
+      <p class="reveal" data-t="dropSub"></p>
       <div class="countdown reveal" id="countdown">
         <div><b data-u="d">00</b><span>Days</span></div><div><b data-u="h">00</b><span>Hours</span></div>
         <div><b data-u="m">00</b><span>Min</span></div><div><b data-u="s">00</b><span>Sec</span></div>
@@ -111,13 +97,7 @@
   <section class="hscroll" id="hscroll">
     <div class="hscroll-sticky">
       <h2 class="hscroll-title">Lookbook <em>’26</em></h2>
-      <div class="hscroll-track" id="hTrack">
-        <figure style="--img:url('https://images.unsplash.com/photo-1509631179647-0177331693ae?w=900&q=80')"><figcaption>01 — Dusk</figcaption></figure>
-        <figure style="--img:url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&q=80')"><figcaption>02 — Ember</figcaption></figure>
-        <figure style="--img:url('https://images.unsplash.com/photo-1483985988355-763728e1935b?w=900&q=80')"><figcaption>03 — Ink</figcaption></figure>
-        <figure style="--img:url('https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=900&q=80')"><figcaption>04 — Velvet</figcaption></figure>
-        <figure style="--img:url('https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80')"><figcaption>05 — Hush</figcaption></figure>
-      </div>
+      <div class="hscroll-track" id="hTrack"></div>
     </div>
   </section>
 
@@ -143,7 +123,8 @@
 
 <footer class="footer">
   <div class="container footer-grid">
-    <div><a class="logo" href="#">OBSIDIAN</a><p>Modern essentials, made slowly.</p></div>
+    <div><a class="logo" href="#">OBSIDIAN</a><p data-t="tagline"></p>
+      <label class="store-switch">Store type <select id="storeSel"></select></label></div>
     <div><h4>Shop</h4><a href="#shop">New in</a><a href="#shop">Bestsellers</a><a href="#lookbook">Gift cards</a></div>
     <div><h4>Help</h4><a href="#">Shipping</a><a href="#">Returns</a><a href="#">Size guide</a></div>
     <div><h4>Newsletter</h4><form class="notify small" id="newsForm"><input type="email" required placeholder="Your email" /><button class="btn btn-primary">Join</button></form></div>
@@ -191,6 +172,7 @@
   <button data-go="cart"><svg viewBox="0 0 24 24"><path d="M5 7h14l-1.5 13h-11z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>Bag<b class="badge" data-badge="cart">0</b></button>
 </nav>
 
+<script src="config.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

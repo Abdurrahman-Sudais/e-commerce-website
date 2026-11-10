@@ -1,33 +1,40 @@
-/* ===== Data — swap for your own catalogue / API ===== */
-const U = id => `https://images.unsplash.com/${id}?w=800&q=80`;
-const PRODUCTS = [
-  { id:1, name:'Nocturne Wool Overcoat', cat:'outerwear', price:540, rating:4.9, reviews:212, isNew:true, colors:['#1b1b1b','#5a4a3a'], imgs:[U('photo-1539533018447-63fcce2678e3'),U('photo-1544022613-e87ca75a784a')], stock:3 },
-  { id:2, name:'Merino Rib Crewneck', cat:'knitwear', price:180, rating:4.8, reviews:140, colors:['#d9d2c5','#2b2b2b','#6b5544'], imgs:[U('photo-1434389677669-e08b4cac3105'),U('photo-1576566588028-4147f3842f27')] },
-  { id:3, name:'Heavyweight Tee', cat:'essentials', price:60, rating:4.7, reviews:520, colors:['#f2efe9','#111'], imgs:[U('photo-1521572163474-6864f9cf17ab'),U('photo-1583743814966-8936f5b7be1a')] },
-  { id:4, name:'Leather Weekender', cat:'accessories', price:420, was:520, rating:4.9, reviews:88, colors:['#5a3b26','#111'], imgs:[U('photo-1548036328-c9fa89d128fa'),U('photo-1553062407-98eeb64c6a62')], stock:5 },
-  { id:5, name:'Shearling Aviator', cat:'outerwear', price:590, rating:4.8, reviews:61, isNew:true, colors:['#3b2a1e'], imgs:[U('photo-1551028719-00167b16eac5'),U('photo-1520975954732-35dd22299614')] },
-  { id:6, name:'Cashmere Turtleneck', cat:'knitwear', price:260, was:320, rating:4.9, reviews:97, colors:['#111','#c7b9a5'], imgs:[U('photo-1608234808654-2a8875faa7fd'),U('photo-1620799140408-edc6dcb6d633')] },
-  { id:7, name:'Pleated Wide Trouser', cat:'essentials', price:210, rating:4.6, reviews:73, isNew:true, colors:['#2b2b2b','#8a7f6e'], imgs:[U('photo-1594633312681-425c7b97ccd1'),U('photo-1624378439575-d8705ad7ae80')] },
-  { id:8, name:'Minimal Steel Watch', cat:'accessories', price:340, rating:4.7, reviews:155, colors:['#c0c0c0','#111'], imgs:[U('photo-1523275335684-37898b6baf30'),U('photo-1524592094714-0f0654e20314')] },
-  { id:9, name:'Oxford Button-Down', cat:'essentials', price:120, rating:4.6, reviews:210, colors:['#e8ecf2','#f2efe9'], imgs:[U('photo-1596755094514-f87e34085b2c'),U('photo-1602810318383-e386cc2a3ccf')] },
-  { id:10, name:'Quilted Liner Jacket', cat:'outerwear', price:290, was:360, rating:4.5, reviews:44, colors:['#2f3a2a','#111'], imgs:[U('photo-1591047139829-d91aecb6caea'),U('photo-1544441893-675973e31985')] },
-  { id:11, name:'Cable Knit Cardigan', cat:'knitwear', price:230, rating:4.8, reviews:66, colors:['#e6dccb'], imgs:[U('photo-1583744946564-b52ac1c389c8'),U('photo-1434389677669-e08b4cac3105')], stock:2 },
-  { id:12, name:'Acetate Sunglasses', cat:'accessories', price:150, rating:4.6, reviews:130, isNew:true, colors:['#111','#6b4a2b'], imgs:[U('photo-1511499767150-a48a237f0083'),U('photo-1572635196237-14b3f281503f')] },
-];
-const SIZES = ['XS','S','M','L','XL'];
+/* Store data comes from config.js (STORE / PRESETS / STORE_KEY) */
 const PROMOS = { NOIR10: .10, WELCOME15: .15 };
 const FREE_SHIP = 200;
+const PRODUCTS = STORE.products.map(p => ({ ...p, imgs: p.imgs.map(id => U(id)) }));
+const SIZES = STORE.sizes;
+const MAX_PRICE = Math.ceil(Math.max(...PRODUCTS.map(p => p.price)) / 10) * 10;
 
 /* ===== Helpers & state ===== */
 const $ = (s, el=document) => el.querySelector(s);
 const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const money = n => '$' + n.toLocaleString(undefined,{maximumFractionDigits:2});
 const store = { get:(k,d)=>JSON.parse(localStorage.getItem(k)||'null')??d, set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
-let cart = store.get('obs_cart', []);
-let wish = store.get('obs_wish', []);
+const K = k => `obs_${STORE_KEY}_${k}`; // cart & wishlist are kept per store type
+let cart = store.get(K('cart'), []).filter(l => PRODUCTS.some(p => p.id === l.id));
+let wish = store.get(K('wish'), []).filter(id => PRODUCTS.some(p => p.id === id));
 let promo = store.get('obs_promo', null);
-const state = { filter:'all', sort:'featured', max:600 };
+const state = { filter:'all', sort:'featured', max:MAX_PRICE };
 const byId = id => PRODUCTS.find(p => p.id === id);
+
+/* ===== Fill the page from the chosen store preset ===== */
+(() => {
+  $$('[data-t]').forEach(el => el.innerHTML = STORE[el.dataset.t] ?? '');
+  document.title = `OBSIDIAN — ${STORE.label}`;
+  $('#heroBg').style.backgroundImage = `url('${STORE.heroImg}')`;
+  $('#dropMedia').style.backgroundImage = `url('${STORE.dropImg}')`;
+  $('#marquee').innerHTML = STORE.marquee.map(w => `<span>${w}</span><em>✦</em>`).join('');
+  const cats = STORE.categories, count = k => PRODUCTS.filter(p => p.cat === k).length;
+  $('#navLinks').innerHTML = `<a href="#shop" data-filter="all">Shop</a>` + cats.slice(0,2).map(c => `<a href="#shop" data-filter="${c.key}">${c.label}</a>`).join('') + `<a href="#lookbook">Lookbook</a>`;
+  $('#mobileMenu').innerHTML = `<a href="#shop" data-filter="all">Shop all</a>` + cats.map(c => `<a href="#shop" data-filter="${c.key}">${c.label}</a>`).join('') + `<a href="#lookbook">Lookbook</a>`;
+  $('#chips').innerHTML = `<button class="chip active" data-filter="all">All</button>` + cats.map(c => `<button class="chip" data-filter="${c.key}">${c.label}</button>`).join('');
+  $('#catGrid').innerHTML = cats.map(c => `<a class="cat-card reveal tilt" href="#shop" data-filter="${c.key}" style="--img:url('${U(c.img, 900)}')"><span>${c.label}</span><small>${count(c.key)} ${STORE.unit} →</small></a>`).join('');
+  $('#hTrack').innerHTML = STORE.lookbook.map((id, i) => `<figure style="--img:url('${U(id, 900)}')"><figcaption>0${i+1}</figcaption></figure>`).join('');
+  const r = $('#priceRange'); r.max = r.value = MAX_PRICE; r.min = 0; $('#priceOut').textContent = MAX_PRICE;
+  const sel = $('#storeSel');
+  sel.innerHTML = Object.entries(PRESETS).map(([k, p]) => `<option value="${k}" ${k===STORE_KEY?'selected':''}>${p.label}</option>`).join('');
+  sel.addEventListener('change', () => { localStorage.setItem('obs_store', sel.value); location.href = location.pathname; });
+})();
 
 /* ===== Preloader ===== */
 (() => {
@@ -116,7 +123,7 @@ function renderGrid() {
         ${p.was ? `<span class="tag sale">−${Math.round((1-p.price/p.was)*100)}%</span>` : p.isNew ? '<span class="tag">New</span>' : ''}
         <button class="wish ${wish.includes(p.id)?'on':''}" data-wish aria-label="Wishlist">${heart}</button>
         <img src="${p.imgs[0]}" alt="${p.name}" loading="lazy"><img class="alt" src="${p.imgs[1]}" alt="" loading="lazy">
-        <div class="quick-add">${['S','M','L'].map(s=>`<button data-add="${s}">+ ${s}</button>`).join('')}</div>
+        <div class="quick-add">${(SIZES ? SIZES.slice(Math.max(0, (SIZES.length>>1)-1), (SIZES.length>>1)+2) : ['One size']).map(s=>`<button data-add="${s}">+ ${SIZES ? s : 'Add to bag'}</button>`).join('')}</div>
       </div>
       <div class="card-info">
         <div><h3>${p.name}</h3><small>${p.cat}</small><div class="swatches">${p.colors.map(c=>`<i style="background:${c}"></i>`).join('')}</div></div>
@@ -174,14 +181,14 @@ function flyToCart(img) {
   requestAnimationFrame(() => requestAnimationFrame(() => Object.assign(f.style,{left:t.left+'px',top:t.top+'px',width:'20px',height:'20px',opacity:.3,borderRadius:'50%'})));
   setTimeout(() => f.remove(), 850);
 }
-function saveCart() { store.set('obs_cart', cart); renderCart(); }
+function saveCart() { store.set(K('cart'), cart); renderCart(); }
 function renderCart() {
   const count = cart.reduce((s,l)=>s+l.qty,0), sub = cart.reduce((s,l)=>s+byId(l.id).price*l.qty,0);
   const disc = promo ? sub * PROMOS[promo] : 0;
   badge($('#cartCount'), count);
   $('#cartItems').innerHTML = cart.length ? cart.map(l => { const p = byId(l.id); return `
     <div class="line" data-key="${l.key}"><img src="${p.imgs[0]}" alt="">
-      <div><h4>${p.name}</h4><small>Size ${l.size} · <i style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${l.color}"></i></small><br>
+      <div><h4>${p.name}</h4><small>${l.size} · <i style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${l.color}"></i></small><br>
         <div class="qty"><button data-q="-1">−</button><span>${l.qty}</span><button data-q="1">+</button></div></div>
       <div class="line-right"><span>${money(p.price*l.qty)}</span><button class="rm" data-rm>Remove</button></div></div>`; }).join('')
     : '<p class="drawer-empty">Your bag is empty.</p>';
@@ -207,7 +214,7 @@ $('#cartBtn').addEventListener('click', () => openPanel($('#cartDrawer')));
 /* ===== Wishlist ===== */
 function toggleWish(id, btn) {
   wish = wish.includes(id) ? wish.filter(x=>x!==id) : [...wish, id];
-  store.set('obs_wish', wish); renderWish();
+  store.set(K('wish'), wish); renderWish();
   if (btn) { btn.classList.toggle('on', wish.includes(id)); btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop'); }
   $$(`.card[data-id="${id}"] .wish`).forEach(b => b.classList.toggle('on', wish.includes(id)));
   toast(wish.includes(id) ? 'Saved to wishlist' : 'Removed from wishlist');
@@ -230,8 +237,9 @@ function badge(el, n) {
 
 /* ===== Quick view (with size + fit finder + recently viewed) ===== */
 function openQuickView(id) {
-  const p = byId(id); let size = null, color = p.colors[0];
-  const soldOut = SIZES.filter((_,i) => (id+i) % 5 === 0);
+  const p = byId(id); let size = SIZES ? null : 'One size', color = p.colors[0];
+  const soldOut = (SIZES || []).filter((_,i) => (id+i) % 5 === 0);
+  const fit = STORE_KEY === 'fashion';
   const stars = '★'.repeat(Math.round(p.rating)) + '☆'.repeat(5-Math.round(p.rating));
   $('#qvCard').innerHTML = `
     <div class="qv-gallery"><img id="qvMain" src="${p.imgs[0]}" alt="${p.name}">
@@ -241,23 +249,23 @@ function openQuickView(id) {
       <p class="eyebrow">${p.cat}</p><h2>${p.name}</h2>
       <div class="stars">${stars}<span>${p.rating} · ${p.reviews} reviews</span></div>
       <span class="price" style="font-size:20px">${p.was?`<s>${money(p.was)}</s>`:''}${money(p.price)}</span>
-      <p>Cut from responsibly sourced fibres and finished by hand in small workshops. Relaxed through the body with a clean, structured line.</p>
+      <p>${p.desc || 'Responsibly sourced materials, finished by hand in small workshops, and built to be used every day for years.'}</p>
       <div><div class="opt-label">Colour</div><div class="colors">${p.colors.map((c,i)=>`<button style="background:${c}" data-c="${c}" class="${i?'':'on'}"></button>`).join('')}</div></div>
-      <div><div class="opt-label">Size <a id="fitToggle">Find my fit</a></div>
-        <div class="sizes">${SIZES.map(s=>`<button data-s="${s}" ${soldOut.includes(s)?'disabled':''}>${s}</button>`).join('')}</div></div>
-      <div class="fit-finder" id="fitFinder">
+      ${SIZES ? `<div><div class="opt-label">Size ${fit ? '<a id="fitToggle">Find my fit</a>' : ''}</div>
+        <div class="sizes">${SIZES.map(s=>`<button data-s="${s}" ${soldOut.includes(s)?'disabled':''}>${s}</button>`).join('')}</div></div>` : ''}
+      ${fit ? `<div class="fit-finder" id="fitFinder">
         <div class="row"><input id="fH" type="number" placeholder="Height (cm)"><input id="fW" type="number" placeholder="Weight (kg)"></div>
-        <button class="btn btn-ghost" id="fitGo" style="padding:10px">Recommend size</button><span id="fitOut"></span></div>
+        <button class="btn btn-ghost" id="fitGo" style="padding:10px">Recommend size</button><span id="fitOut"></span></div>` : ''}
       ${p.stock ? `<span class="stock">● Only ${p.stock} left in stock</span>` : ''}
-      <button class="btn btn-primary full" id="qvAdd"><span>Select a size</span></button>
+      <button class="btn btn-primary full" id="qvAdd"><span>${SIZES ? 'Select a size' : `Add to bag — ${money(p.price)}`}</span></button>
     </div>`;
   const card = $('#qvCard');
   $$('.qv-thumbs img', card).forEach(t => t.onclick = () => { $$('.qv-thumbs img',card).forEach(x=>x.classList.remove('on')); t.classList.add('on'); $('#qvMain').src = t.src; });
   const pick = s => { size = s; $$('.sizes button',card).forEach(b=>b.classList.toggle('on', b.dataset.s===s)); $('#qvAdd span').textContent = `Add to bag — ${money(p.price)}`; };
   $$('.sizes button', card).forEach(b => b.onclick = () => pick(b.dataset.s));
   $$('.colors button', card).forEach(b => b.onclick = () => { color = b.dataset.c; $$('.colors button',card).forEach(x=>x.classList.toggle('on', x===b)); });
-  $('#fitToggle').onclick = () => $('#fitFinder').classList.toggle('open');
-  $('#fitGo').onclick = () => { const h=+$('#fH').value, w=+$('#fW').value; if(!h||!w) return;
+  if (fit) $('#fitToggle').onclick = () => $('#fitFinder').classList.toggle('open');
+  if (fit) $('#fitGo').onclick = () => { const h=+$('#fH').value, w=+$('#fW').value; if(!h||!w) return;
     const bmi = w/((h/100)**2), idx = Math.max(0, Math.min(4, Math.round((bmi-18)/2.5) + (h>185?1:h<160?-1:0)));
     let s = SIZES[idx]; if (soldOut.includes(s)) s = SIZES.find(x=>!soldOut.includes(x));
     $('#fitOut').textContent = `We recommend ${s}.`; pick(s); };

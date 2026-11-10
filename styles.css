@@ -354,3 +354,5 @@ cite{display:block;margin-top:22px;font-family:var(--sans);font-style:normal;fon
   .bottom-bar svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.5}
   .bottom-bar .badge{top:0;right:calc(50% - 20px)}
 }
+.store-switch{display:flex;gap:10px;align-items:center;margin-top:18px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.card-media img[data-broken]{opacity:0!important}
